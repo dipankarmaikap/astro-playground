@@ -1,0 +1,15 @@
+---
+import type { NodeComponentProps } from '../lib/richtext-renderer/core/types';
+
+// We explicitly declare the Exact string Tiptap name our Custom Node expects
+export interface Props extends NodeComponentProps<'heading'> {}
+
+const { parsedDOM, attrs } = Astro.props;
+
+const Tag = parsedDOM?.tag || 'h2';
+const className = `text-orange-600 border-b-2 border-orange-200 pb-2 mb-4 mt-8 level-${attrs.level}`;
+---
+
+<Tag class={className} {...parsedDOM?.attrs}>
+  <slot />
+</Tag>

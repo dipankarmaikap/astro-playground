@@ -1,0 +1,82 @@
+---
+import type { Node as PMNode } from "@tiptap/pm/model";
+import type { CoreRenderer } from "../core/renderer";
+import type { FrameworkComponentMap } from "../core/types";
+import MarkWrapper from "./MarkWrapper.astro";
+
+export interface Props {
+  node: PMNode;
+  renderer: CoreRenderer;
+  components: FrameworkComponentMap<any>;
+  index: number;
+  isMarkWrapped?: boolean;
+}
+
+const {
+  node,
+  renderer,
+  components,
+  index,
+  isMarkWrapped = false,
+} = Astro.props;
+
+// 1. Get default DOM Output Spec and exact Marks
+const domSpec = renderer.getNodeDOMSpec(node);
+const markDefs = renderer.getMarksForNode(node);
+
+// 2. Resolve the Custom Node Component or default Tag
+const CustomNode = components[node.type.name as keyof typeof components];
+const Tag = CustomNode ? CustomNode : domSpec ? domSpec.tag : null;
+
+// 3. Resolve attributes (Astro style `class` -> `class` instead of `className`)
+const nodeProps = CustomNode
+  ? { node, attrs: node.attrs, parsedDOM: domSpec } // Custom component props
+  : domSpec
+    ? { ...domSpec.attrs }
+    : {}; // Default HTML attributes
+
+// 4. Collect children
+const childrenNodes: PMNode[] = [];
+node.forEach((childNode) => {
+  childrenNodes.push(childNode);
+});
+---
+
+{/* Wrap with Marks first unless already wrapped */}
+{
+  !isMarkWrapped && markDefs.length > 0 ? (
+    <MarkWrapper
+      node={node}
+      renderer={renderer}
+      components={components}
+      marks={markDefs}
+      index={index}
+    />
+  ) : (
+    <>
+      {node.isText ? (
+        <>{node.text}</>
+      ) : Tag ? (
+        <Tag {...nodeProps}>
+          {childrenNodes.map((childNode, childIndex) => (
+            <Astro.self
+              node={childNode}
+              renderer={renderer}
+              components={components}
+              index={childIndex}
+            />
+          ))}
+        </Tag>
+      ) : (
+        childrenNodes.map((childNode, childIndex) => (
+          <Astro.self
+            node={childNode}
+            renderer={renderer}
+            components={components}
+            index={childIndex}
+          />
+        ))
+      )}
+    </>
+  )
+}

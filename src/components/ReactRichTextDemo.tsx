@@ -1,0 +1,60 @@
+import {
+  RichTextRenderer,
+  type RichTextNodeProps,
+  type RichTextMarkProps,
+} from "../lib/richtext-renderer/react/RichTextRenderer";
+
+import { sampleDoc as doc } from "../data/sampleDoc";
+
+// Typed Component Overrides
+const CustomHeading = ({
+  parsedDOM,
+  children,
+  attrs,
+}: RichTextNodeProps<"heading">) => {
+  const Tag = (parsedDOM?.tag || "h2") as any;
+  return (
+    <Tag
+      className={`text-blue-600 border-b pb-2 mb-4 level-${attrs.level}`}
+      {...parsedDOM?.attrs}
+    >
+      {children}
+    </Tag>
+  );
+};
+
+const CustomBold = ({ children }: RichTextMarkProps<"bold">) => {
+  return (
+    <strong className="font-black text-rose-500 bg-rose-50 px-1 rounded">
+      {children}
+    </strong>
+  );
+};
+
+// Typescript ensures `href` exists on Link attrs when casting Custom Props
+const CustomLink = ({ attrs, children }: RichTextMarkProps<"link">) => {
+  return (
+    <a
+      href={attrs.href}
+      target={attrs.target}
+      className="text-blue-500 underline decoration-wavy"
+    >
+      {children}
+    </a>
+  );
+};
+
+export default function ReactDemo() {
+  return (
+    <div className="p-6 bg-white rounded-lg shadow-md border border-gray-200">
+      <RichTextRenderer
+        doc={doc}
+        components={{
+          heading: CustomHeading,
+          bold: CustomBold,
+          link: CustomLink,
+        }}
+      />
+    </div>
+  );
+}
