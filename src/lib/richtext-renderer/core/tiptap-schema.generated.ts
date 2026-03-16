@@ -1,57 +1,59 @@
-// THIS FILE IS AUTO-GENERATED. DO NOT EDIT.
+import type { Node as PMNode, Mark as PMMark } from "@tiptap/pm/model";
 
 export interface TiptapNodeAttributes {
   'paragraph': {
-    'textAlign'?: null;
+    'textAlign'?: any;
   };
   'doc': Record<string, never>;
   'text': Record<string, never>;
   'blockquote': Record<string, never>;
   'heading': {
-    'textAlign'?: null;
+    'textAlign'?: any;
     'level'?: number;
   };
   'bullet_list': Record<string, never>;
   'ordered_list': {
     'start'?: number;
-    'type'?: null;
+    'type'?: any;
     'order'?: number;
   };
   'list_item': Record<string, never>;
   'code_block': {
-    'class'?: null;
+    'class'?: string | null;
   };
   'hard_break': Record<string, never>;
   'horizontal_rule': Record<string, never>;
   'image': {
-    'src'?: null;
-    'alt'?: null;
-    'title'?: null;
-    'width'?: null;
-    'height'?: null;
-    'id'?: null;
-    'source'?: null;
-    'copyright'?: null;
-    'meta_data'?: null;
+    'src'?: string | null;
+    'alt'?: string | null;
+    'title'?: string | null;
+    'width'?: any;
+    'height'?: any;
+    'id'?: any;
+    'source'?: any;
+    'copyright'?: any;
+    'meta_data'?: any;
   };
   'emoji': {
-    'name'?: null;
+    'name'?: any;
+    'emoji'?: any;
+    'fallbackImage'?: any;
   };
   'table': Record<string, never>;
   'tableRow': Record<string, never>;
   'tableCell': {
     'colspan'?: number;
     'rowspan'?: number;
-    'colwidth'?: null;
-    'backgroundColor'?: null;
+    'colwidth'?: any;
+    'backgroundColor'?: any;
   };
   'tableHeader': {
     'colspan'?: number;
     'rowspan'?: number;
-    'colwidth'?: null;
+    'colwidth'?: any;
   };
   'blok': {
-    'id'?: null;
+    'id'?: any;
     'body'?: any;
   };
   'details': Record<string, never>;
@@ -61,19 +63,19 @@ export interface TiptapNodeAttributes {
 
 export interface TiptapMarkAttributes {
   'link': {
-    'href'?: null;
+    'href'?: string | null;
     'target'?: string;
     'rel'?: string;
-    'class'?: null;
-    'title'?: null;
-    'linktype'?: null;
+    'class'?: string | null;
+    'title'?: string | null;
+    'linktype'?: string | null;
   };
   'textStyle': {
-    'backgroundColor'?: null;
-    'color'?: null;
-    'fontFamily'?: null;
-    'fontSize'?: null;
-    'lineHeight'?: null;
+    'backgroundColor'?: any;
+    'color'?: any;
+    'fontFamily'?: any;
+    'fontSize'?: any;
+    'lineHeight'?: any;
   };
   'bold': Record<string, never>;
   'italic': Record<string, never>;
@@ -83,18 +85,37 @@ export interface TiptapMarkAttributes {
   'superscript': Record<string, never>;
   'subscript': Record<string, never>;
   'highlight': {
-    'color'?: null;
+    'color'?: any;
   };
   'anchor': {
-    'id'?: null;
+    'id'?: any;
   };
   'styled': {
-    'class'?: null;
+    'class'?: string | null;
   };
   'reporter': Record<string, never>;
 }
 
 export type TiptapNodeName = keyof TiptapNodeAttributes;
 export type TiptapMarkName = keyof TiptapMarkAttributes;
+export type TiptapComponentName = TiptapNodeName | TiptapMarkName;
 
 export type TiptapAllAttributes = TiptapNodeAttributes & TiptapMarkAttributes;
+
+/**
+ * Framework-agnostic base props for any mapped RichText component.
+ *
+ * - `attrs` — the Tiptap extension attributes (e.g. `{ level: 1 }` for heading)
+ * - `node` — raw ProseMirror Node (nodes only), for advanced use cases
+ * - `mark` — raw ProseMirror Mark (marks only), for advanced use cases
+ */
+export type RichTextComponentProps<T extends TiptapComponentName> = {
+  attrs: T extends TiptapNodeName
+    ? TiptapNodeAttributes[T]
+    : T extends TiptapMarkName
+      ? TiptapMarkAttributes[T]
+      : Record<string, any>;
+
+  node?: T extends TiptapNodeName ? PMNode : undefined;
+  mark?: T extends TiptapMarkName ? PMMark : undefined;
+};

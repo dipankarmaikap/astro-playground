@@ -1,29 +1,24 @@
-import {
-  RichTextRenderer,
-  type RichTextNodeProps,
-  type RichTextMarkProps,
-} from "../lib/richtext-renderer/react/RichTextRenderer";
+import { RichTextRenderer } from "../lib/richtext-renderer/react/RichTextRenderer";
+import type { RichTextComponentProps } from "../lib/richtext-renderer/react/types";
 
 import { sampleDoc as doc } from "../data/sampleDoc";
 
 // Typed Component Overrides
 const CustomHeading = ({
-  parsedDOM,
   children,
   attrs,
-}: RichTextNodeProps<"heading">) => {
-  const Tag = (parsedDOM?.tag || "h2") as any;
+}: RichTextComponentProps<"heading">) => {
+  const Tag = `h${attrs.level ?? 2}` as any;
   return (
     <Tag
-      className={`text-blue-600 border-b pb-2 mb-4 level-${attrs.level}`}
-      {...parsedDOM?.attrs}
+      className={`text-orange-600 border-b-2 border-orange-200 pb-2 mb-4 mt-8 level-${attrs.level}`}
     >
       {children}
     </Tag>
   );
 };
 
-const CustomBold = ({ children }: RichTextMarkProps<"bold">) => {
+const CustomBold = ({ children }: RichTextComponentProps<"bold">) => {
   return (
     <strong className="font-black text-rose-500 bg-rose-50 px-1 rounded">
       {children}
@@ -32,10 +27,13 @@ const CustomBold = ({ children }: RichTextMarkProps<"bold">) => {
 };
 
 // Typescript ensures `href` exists on Link attrs when casting Custom Props
-const CustomLink = ({ attrs, children }: RichTextMarkProps<"link">) => {
+const CustomLink = ({
+  attrs,
+  children,
+}: RichTextComponentProps<"link">) => {
   return (
     <a
-      href={attrs.href}
+      href={attrs.href || "#"}
       target={attrs.target}
       className="text-blue-500 underline decoration-wavy"
     >

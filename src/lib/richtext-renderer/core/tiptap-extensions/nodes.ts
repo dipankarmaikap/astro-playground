@@ -142,8 +142,29 @@ export const StoryblokImage = Image.extend({
   },
 });
 
-// Emoji with custom renderHTML
-export const StoryblokEmoji = Emoji;
+export const StoryblokEmoji = Emoji.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      name: { default: null },
+      emoji: { default: null },
+      fallbackImage: { default: null },
+    }
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['span', {
+      'data-type': 'emoji',
+      'data-name': HTMLAttributes.name,
+      'data-emoji': HTMLAttributes.emoji,
+    }, ['img', {
+      src: HTMLAttributes.fallbackImage,
+      alt: HTMLAttributes.alt,
+      style: 'width: 1.25em; height: 1.25em; vertical-align: text-top; display: inline-block;',
+      draggable: 'false',
+      loading: 'lazy',
+    }]];
+  },
+});
 
 export const StoryblokHeading = Heading.extend({
   addAttributes() {

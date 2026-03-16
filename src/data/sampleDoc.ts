@@ -1,7 +1,7 @@
-import type { TiptapJSON } from "../lib/richtext-renderer/core/types.js";
+import type { JSONContent } from "../lib/richtext-renderer/core/types";
 
 // Complex Sample Document matching React
-export const sampleDoc: TiptapJSON = {
+export const sampleDoc: JSONContent = {
   type: "doc",
   content: [
     {

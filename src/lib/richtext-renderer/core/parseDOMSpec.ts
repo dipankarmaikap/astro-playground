@@ -10,7 +10,18 @@ import type { ParsedDOMSpec } from './types';
  */
 export function parseDOMSpec(spec: any): ParsedDOMSpec | null {
   if (typeof spec === 'string') {
-    return { tag: spec, attrs: {}, hasHole: false, contents: null };
+    return { tag: spec, attrs: {}, hasHole: false, children: [] };
+  }
+  
+  // Handle raw HTMLElement nodes created by Tiptap extensions (e.g. Emoji)
+  if (spec && typeof spec === 'object' && spec.nodeType === 1) {
+    const element = spec as HTMLElement;
+    const attrs: Record<string, string> = {};
+    for (let i = 0; i < element.attributes.length; i++) {
+        const attr = element.attributes[i];
+        attrs[attr.name] = attr.value;
+    }
+    return { tag: element.tagName.toLowerCase(), attrs, hasHole: false, children: [] };
   }
   
   if (Array.isArray(spec)) {
@@ -32,20 +43,25 @@ export function parseDOMSpec(spec: any): ParsedDOMSpec | null {
     }
 
     let hasHole = false;
-    let contents: ParsedDOMSpec | string | null = null;
+    const children: Array<ParsedDOMSpec | string | { hole: true }> = [];
 
-    if (spec[contentIdx] === 0) {
-      hasHole = true;
-    } else if (spec[contentIdx] !== undefined) {
-      if (Array.isArray(spec[contentIdx])) {
-        // Nested DOM spec (e.g. ['code', ['span', 0]])
-        contents = parseDOMSpec(spec[contentIdx]) as ParsedDOMSpec;
-      } else if (typeof spec[contentIdx] === 'string') {
-         contents = spec[contentIdx]; // Text content maybe
-      }
+    for (let i = contentIdx; i < spec.length; i++) {
+        const childSpec = spec[i];
+        if (childSpec === 0) {
+            hasHole = true;
+            children.push({ hole: true });
+        } else if (typeof childSpec === 'string') {
+            children.push(childSpec);
+        } else if (Array.isArray(childSpec)) {
+            const parsedChild = parseDOMSpec(childSpec);
+            if (parsedChild) {
+                if (parsedChild.hasHole) hasHole = true;
+                children.push(parsedChild);
+            }
+        }
     }
 
-    return { tag, attrs, hasHole, contents };
+    return { tag, attrs, hasHole, children };
   }
   
   return null;

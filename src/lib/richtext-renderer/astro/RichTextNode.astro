@@ -1,13 +1,14 @@
 ---
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { CoreRenderer } from "../core/renderer";
-import type { FrameworkComponentMap } from "../core/types";
+import type { ComponentMap } from "./types";
 import MarkWrapper from "./MarkWrapper.astro";
+import RenderDOMSpec from "./RenderDOMSpec.astro";
 
 export interface Props {
   node: PMNode;
   renderer: CoreRenderer;
-  components: FrameworkComponentMap<any>;
+  components: ComponentMap;
   index: number;
   isMarkWrapped?: boolean;
 }
@@ -24,13 +25,12 @@ const {
 const domSpec = renderer.getNodeDOMSpec(node);
 const markDefs = renderer.getMarksForNode(node);
 
-// 2. Resolve the Custom Node Component or default Tag
-const CustomNode = components[node.type.name as keyof typeof components];
-const Tag = CustomNode ? CustomNode : domSpec ? domSpec.tag : null;
+// 2. Resolve the Custom Node Component
+const CustomNode = components[node.type.name as keyof typeof components] as any;
 
 // 3. Resolve attributes (Astro style `class` -> `class` instead of `className`)
 const nodeProps = CustomNode
-  ? { node, attrs: node.attrs, parsedDOM: domSpec } // Custom component props
+  ? { node, attrs: node.attrs } // Custom component props
   : domSpec
     ? { ...domSpec.attrs }
     : {}; // Default HTML attributes
@@ -56,9 +56,9 @@ node.forEach((childNode) => {
     <>
       {node.isText ? (
         <>{node.text}</>
-      ) : Tag ? (
-        <Tag {...nodeProps}>
-          {childrenNodes.map((childNode, childIndex) => (
+      ) : CustomNode ? (
+        <CustomNode {...nodeProps}>
+          {childrenNodes.length > 0 && childrenNodes.map((childNode, childIndex) => (
             <Astro.self
               node={childNode}
               renderer={renderer}
@@ -66,7 +66,18 @@ node.forEach((childNode) => {
               index={childIndex}
             />
           ))}
-        </Tag>
+        </CustomNode>
+      ) : domSpec ? (
+        <RenderDOMSpec spec={domSpec}>
+          {childrenNodes.length > 0 && childrenNodes.map((childNode, childIndex) => (
+            <Astro.self
+              node={childNode}
+              renderer={renderer}
+              components={components}
+              index={childIndex}
+            />
+          ))}
+        </RenderDOMSpec>
       ) : (
         childrenNodes.map((childNode, childIndex) => (
           <Astro.self

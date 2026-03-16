@@ -1,0 +1,38 @@
+---
+import type { ParsedDOMSpec } from "../core/types";
+import { VOID_ELEMENTS } from "../core/renderer";
+
+export interface Props {
+  spec: ParsedDOMSpec;
+}
+
+const { spec } = Astro.props;
+
+// Is it a void element?
+const isVoid = VOID_ELEMENTS.has(spec.tag.toLowerCase());
+
+// Astro allows dynamic tags via Capitalized variable names
+const Tag = spec.tag as any;
+---
+
+{
+  isVoid ? (
+    <Tag {...spec.attrs} />
+  ) : (
+    <Tag {...spec.attrs}>
+      {spec.children.map((child) => {
+        if (typeof child === "string") return child;
+        if (typeof child === "object" && "hole" in child && child.hole) {
+          // Inject Tiptap nested nodes into the "hole"
+          return <slot />;
+        }
+        return (
+          <Astro.self spec={child as ParsedDOMSpec}>
+            {/* Pass the slotted children down recursively so they eventually land in the hole */}
+            <slot />
+          </Astro.self>
+        );
+      })}
+    </Tag>
+  )
+}

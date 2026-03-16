@@ -1,23 +1,15 @@
 ---
-import type { AnyExtension } from "@tiptap/core";
+import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { CoreRenderer } from "../core/renderer";
-import type {
-  TiptapJSON,
-  FrameworkComponentMap,
-  NodeComponentProps,
-  MarkComponentProps,
-} from "../core/types";
-// Re-export type helpers for users building Astro custom components!
-export type RichTextNodeProps<T extends string = string> =
-  NodeComponentProps<T>;
-export type RichTextMarkProps<T extends string = string> =
-  MarkComponentProps<T>;
-import NodeIter from "./NodeIter.astro";
+import type { ComponentMap } from "./types";
+import type { Node as PMNode } from "@tiptap/pm/model";
+
+import RichTextNode from "./RichTextNode.astro";
 
 export interface Props {
-  doc: TiptapJSON;
+  doc: JSONContent;
   extensions?: AnyExtension[];
-  components?: FrameworkComponentMap<any>;
+  components?: ComponentMap;
 }
 
 const { doc, extensions, components = {} } = Astro.props;
@@ -27,7 +19,7 @@ const renderer = new CoreRenderer(extensions);
 const pmDoc = renderer.parseDocument(doc);
 
 // Extract the top level nodes to pass to our iterator
-const nodes: import("@tiptap/pm/model").Node[] = [];
+const nodes: PMNode[] = [];
 pmDoc.forEach((childNode) => {
   nodes.push(childNode);
 });
@@ -35,7 +27,7 @@ pmDoc.forEach((childNode) => {
 
 {
   nodes.map((node, index) => (
-    <NodeIter
+    <RichTextNode
       node={node}
       renderer={renderer}
       components={components}

@@ -1,0 +1,11 @@
+---
+import type { RichTextComponentProps } from '../lib/richtext-renderer/astro/types';
+
+export interface Props extends RichTextComponentProps<'link'> {}
+
+const { attrs } = Astro.props;
+---
+
+<a href={attrs.href || "#"} target={attrs.target} class="text-blue-500 underline decoration-wavy">
+  <slot />
+</a>

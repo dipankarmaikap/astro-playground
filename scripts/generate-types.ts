@@ -12,11 +12,23 @@ const extensions = Object.values(defaultExtensions);
 /**
  * Infer type from default value
  */
-function getAttributeTypeFromDefault(value: unknown): string {
+function getAttributeTypeFromDefault(
+  attrName: string,
+  value: unknown,
+): string {
+  if (value === null) {
+    if (["src", "href", "alt", "title", "linktype", "class", "target", "rel"].includes(attrName)) {
+      return "string | null";
+    }
+    if (['level'].includes(attrName)) {
+      return "number | null";
+    }
+    return "any";
+  }
+
   if (typeof value === "boolean") return "boolean";
   if (typeof value === "number") return "number";
   if (typeof value === "string") return "string";
-  if (value === null) return "null";
   return "any";
 }
 
@@ -24,9 +36,9 @@ function getAttributeTypeFromDefault(value: unknown): string {
  * Fallback typing for required attributes (no default)
  */
 function inferRequiredType(attrName: string): string {
-  if (["src", "href", "alt", "title", "linktype"].includes(attrName))
+  if (["src", "href", "alt", "title", "linktype", "class", "target", "rel"].includes(attrName))
     return "string";
-  if (["level"].includes(attrName)) return "number";
+  if (["level", "colspan", "rowspan", "start", "order"].includes(attrName)) return "number";
   return "any";
 }
 
@@ -56,7 +68,7 @@ function generateAttributes(types: Record<string, any>) {
       let typeStr: string;
 
       if (hasDefault) {
-        typeStr = getAttributeTypeFromDefault(defaultValue);
+        typeStr = getAttributeTypeFromDefault(attrName, defaultValue);
       } else {
         typeStr = inferRequiredType(attrName);
       }
@@ -75,7 +87,9 @@ function generateAttributes(types: Record<string, any>) {
 function generateTypes() {
   const schema = getSchema(extensions as any);
 
-  let output = `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT.\n\n`;
+  let output = `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT.\n`;
+  output += `import type { Node as PMNode, Mark as PMMark } from "@tiptap/pm/model";\n`;
+  output += `import type { ParsedDOMSpec } from "./types.js";\n\n`;
 
   /**
    * Node attributes
@@ -95,9 +109,28 @@ function generateTypes() {
    * Helper types
    */
   output += `export type TiptapNodeName = keyof TiptapNodeAttributes;\n`;
-  output += `export type TiptapMarkName = keyof TiptapMarkAttributes;\n\n`;
+  output += `export type TiptapMarkName = keyof TiptapMarkAttributes;\n`;
+  output += `export type TiptapComponentName = TiptapNodeName | TiptapMarkName;\n\n`;
 
-  output += `export type TiptapAllAttributes = TiptapNodeAttributes & TiptapMarkAttributes;\n`;
+  output += `export type TiptapAllAttributes = TiptapNodeAttributes & TiptapMarkAttributes;\n\n`;
+
+  /**
+   * Unified Prop Helper
+   */
+  output += `/**
+ * Framework-agnostic base props for any mapped RichText component.
+ */
+export type RichTextComponentProps<T extends TiptapComponentName> = {
+  attrs: T extends TiptapNodeName
+    ? TiptapNodeAttributes[T]
+    : T extends TiptapMarkName
+      ? TiptapMarkAttributes[T]
+      : Record<string, any>;
+  parsedDOM: ParsedDOMSpec | null;
+
+  node?: T extends TiptapNodeName ? PMNode : undefined;
+  mark?: T extends TiptapMarkName ? PMMark : undefined;
+};\n`;
 
   const outPath = path.join(
     __dirname,

@@ -1,13 +1,15 @@
 ---
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { CoreRenderer } from "../core/renderer";
-import type { FrameworkComponentMap, MarkMapItem } from "../core/types";
-import NodeIter from "./NodeIter.astro";
+import type { MarkMapItem } from "../core/types";
+import type { ComponentMap } from "./types";
+import RichTextNode from "./RichTextNode.astro";
+import RenderDOMSpec from "./RenderDOMSpec.astro";
 
 export interface Props {
   node: PMNode;
   renderer: CoreRenderer;
-  components: FrameworkComponentMap<any>;
+  components: ComponentMap;
   marks: MarkMapItem[];
   index: number;
 }
@@ -15,27 +17,19 @@ export interface Props {
 const { node, renderer, components, marks, index } = Astro.props;
 
 if (marks.length === 0) {
-  // If no more marks to wrap, delegate back to NodeIter to render the actual node content
-  // We use a special flag `isMarkWrapped=true` so NodeIter doesn't re-wrap it infinitely
+  // If no more marks to wrap, delegate back to RichTextNode to render the actual node content
+  // We use a special flag `isMarkWrapped=true` so RichTextNode doesn't re-wrap it infinitely
 }
 
 const currentMark = marks[0];
 const remainingMarks = marks.slice(1);
 
-const CustomMark = components[currentMark.type as keyof typeof components];
-// In Astro, a lowercase string (e.g., 'strong') is interpreted as HTML, but uppercase is a component.
-// We must use a dynamic tag syntax for standard HTML elements.
-const Tag = CustomMark
-  ? CustomMark
-  : currentMark.spec
-    ? currentMark.spec.tag
-    : null;
+const CustomMark = components[currentMark.type as keyof typeof components] as any;
 
 const markProps = CustomMark
   ? {
       mark: currentMark.pmMark,
       attrs: currentMark.attrs,
-      parsedDOM: currentMark.spec,
     }
   : currentMark.spec
     ? { ...currentMark.spec.attrs }
@@ -43,8 +37,8 @@ const markProps = CustomMark
 ---
 
 {
-  Tag ? (
-    <Tag {...markProps}>
+  CustomMark ? (
+    <CustomMark {...markProps}>
       {remainingMarks.length > 0 ? (
         <Astro.self
           node={node}
@@ -54,7 +48,7 @@ const markProps = CustomMark
           index={index}
         />
       ) : (
-        <NodeIter
+        <RichTextNode
           node={node}
           renderer={renderer}
           components={components}
@@ -62,7 +56,27 @@ const markProps = CustomMark
           isMarkWrapped={true}
         />
       )}
-    </Tag>
+    </CustomMark>
+  ) : currentMark.spec ? (
+    <RenderDOMSpec spec={currentMark.spec}>
+      {remainingMarks.length > 0 ? (
+        <Astro.self
+          node={node}
+          renderer={renderer}
+          components={components}
+          marks={remainingMarks}
+          index={index}
+        />
+      ) : (
+        <RichTextNode
+          node={node}
+          renderer={renderer}
+          components={components}
+          index={index}
+          isMarkWrapped={true}
+        />
+      )}
+    </RenderDOMSpec>
   ) : (
     <>
       {/* Should not happen, but fallback to unwrapping */}
@@ -75,7 +89,7 @@ const markProps = CustomMark
           index={index}
         />
       ) : (
-        <NodeIter
+        <RichTextNode
           node={node}
           renderer={renderer}
           components={components}

@@ -1,8 +1,18 @@
 import { Node as PMNode } from '@tiptap/pm/model';
-import { getSchema, type AnyExtension } from '@tiptap/core';
-import type { TiptapJSON, MarkMapItem, ParsedDOMSpec } from './types';
+import { getSchema, type AnyExtension, type JSONContent } from '@tiptap/core';
+import type { MarkMapItem, ParsedDOMSpec } from './types';
 import { parseDOMSpec } from './parseDOMSpec';
-import { defaultExtensions } from './extensions';
+import { defaultExtensions as extensionsDict } from './tiptap-extensions';
+
+/**
+ * Standard HTML specification for self-closing void elements
+ */
+export const VOID_ELEMENTS = new Set([
+  "area", "base", "br", "col", "embed", "hr", "img", "input", 
+  "link", "meta", "param", "source", "track", "wbr"
+]);
+
+const defaultExtensions = Object.values(extensionsDict);
 
 export class CoreRenderer {
   private schema: any;
@@ -16,7 +26,7 @@ export class CoreRenderer {
   /**
    * Parse a raw Tiptap JSON document into a ProseMirror Node map
    */
-  public parseDocument(json: TiptapJSON): PMNode {
+  public parseDocument(json: JSONContent): PMNode {
     return PMNode.fromJSON(this.schema, json);
   }
 
