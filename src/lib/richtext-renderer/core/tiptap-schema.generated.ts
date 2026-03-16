@@ -1,48 +1,57 @@
-// THIS FILE IS AUTO-GENERATED. DO NOT EDIT MANUALLY.
+// THIS FILE IS AUTO-GENERATED. DO NOT EDIT.
 
 export interface TiptapNodeAttributes {
-  'paragraph': Record<string, never>;
+  'paragraph': {
+    'textAlign'?: null;
+  };
   'doc': Record<string, never>;
   'text': Record<string, never>;
   'blockquote': Record<string, never>;
   'heading': {
+    'textAlign'?: null;
     'level'?: number;
   };
   'bullet_list': Record<string, never>;
   'ordered_list': {
     'start'?: number;
-    'type'?: any;
+    'type'?: null;
+    'order'?: number;
   };
   'list_item': Record<string, never>;
   'code_block': {
-    'language'?: any;
+    'class'?: null;
   };
   'hard_break': Record<string, never>;
   'horizontal_rule': Record<string, never>;
   'image': {
-    'src'?: any;
-    'alt'?: any;
-    'title'?: any;
-    'width'?: any;
-    'height'?: any;
+    'src'?: null;
+    'alt'?: null;
+    'title'?: null;
+    'width'?: null;
+    'height'?: null;
+    'id'?: null;
+    'source'?: null;
+    'copyright'?: null;
+    'meta_data'?: null;
   };
   'emoji': {
-    'name'?: any;
+    'name'?: null;
   };
   'table': Record<string, never>;
   'tableRow': Record<string, never>;
   'tableCell': {
     'colspan'?: number;
     'rowspan'?: number;
-    'colwidth'?: any;
+    'colwidth'?: null;
+    'backgroundColor'?: null;
   };
   'tableHeader': {
     'colspan'?: number;
     'rowspan'?: number;
-    'colwidth'?: any;
+    'colwidth'?: null;
   };
   'blok': {
-    'id'?: any;
+    'id'?: null;
     'body'?: any;
   };
   'details': Record<string, never>;
@@ -52,11 +61,19 @@ export interface TiptapNodeAttributes {
 
 export interface TiptapMarkAttributes {
   'link': {
-    'href'?: any;
-    'uuid'?: any;
-    'anchor'?: any;
-    'target'?: any;
-    'linktype'?: string;
+    'href'?: null;
+    'target'?: string;
+    'rel'?: string;
+    'class'?: null;
+    'title'?: null;
+    'linktype'?: null;
+  };
+  'textStyle': {
+    'backgroundColor'?: null;
+    'color'?: null;
+    'fontFamily'?: null;
+    'fontSize'?: null;
+    'lineHeight'?: null;
   };
   'bold': Record<string, never>;
   'italic': Record<string, never>;
@@ -65,17 +82,19 @@ export interface TiptapMarkAttributes {
   'code': Record<string, never>;
   'superscript': Record<string, never>;
   'subscript': Record<string, never>;
-  'highlight': Record<string, never>;
-  'textStyle': {
-    'class'?: any;
-    'id'?: any;
-    'color'?: any;
+  'highlight': {
+    'color'?: null;
   };
   'anchor': {
-    'id'?: any;
+    'id'?: null;
   };
-  'styled': Record<string, never>;
+  'styled': {
+    'class'?: null;
+  };
   'reporter': Record<string, never>;
 }
+
+export type TiptapNodeName = keyof TiptapNodeAttributes;
+export type TiptapMarkName = keyof TiptapMarkAttributes;
 
 export type TiptapAllAttributes = TiptapNodeAttributes & TiptapMarkAttributes;

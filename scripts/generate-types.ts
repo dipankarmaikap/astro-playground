@@ -7,70 +7,111 @@ import { defaultExtensions } from "../src/lib/richtext-renderer/core/tiptap-exte
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function getAttributeTypeFromDefault(value: any): string {
+const extensions = Object.values(defaultExtensions);
+
+/**
+ * Infer type from default value
+ */
+function getAttributeTypeFromDefault(value: unknown): string {
   if (typeof value === "boolean") return "boolean";
   if (typeof value === "number") return "number";
   if (typeof value === "string") return "string";
-  // If null, we often assume it's a string attribute or any in HTML
+  if (value === null) return "null";
   return "any";
 }
-const extentionObj = defaultExtensions;
-const extentionArray = Object.values(extentionObj);
 
-function extractNodeAndMarkAttributes() {
-  const schema = getSchema(extentionArray as any);
-  let output = `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT MANUALLY.\n\n`;
+/**
+ * Fallback typing for required attributes (no default)
+ */
+function inferRequiredType(attrName: string): string {
+  if (["src", "href", "alt", "title", "linktype"].includes(attrName))
+    return "string";
+  if (["level"].includes(attrName)) return "number";
+  return "any";
+}
+
+/**
+ * Generate attribute interface body for nodes or marks
+ */
+function generateAttributes(types: Record<string, any>) {
+  let out = "";
+
+  for (const [name, type] of Object.entries(types)) {
+    const attrs = type.attrs;
+
+    if (!attrs || Object.keys(attrs).length === 0) {
+      out += `  '${name}': Record<string, never>;\n`;
+      continue;
+    }
+
+    out += `  '${name}': {\n`;
+
+    for (const [attrName, attrVal] of Object.entries(attrs)) {
+      const attribute: any = attrVal;
+
+      const hasDefault = attribute.hasDefault;
+      const defaultValue = attribute.default;
+      const isRequired = attribute.isRequired;
+
+      let typeStr: string;
+
+      if (hasDefault) {
+        typeStr = getAttributeTypeFromDefault(defaultValue);
+      } else {
+        typeStr = inferRequiredType(attrName);
+      }
+
+      const optional = hasDefault && !isRequired;
+
+      out += `    '${attrName}'${optional ? "?" : ""}: ${typeStr};\n`;
+    }
+
+    out += `  };\n`;
+  }
+
+  return out;
+}
+
+function generateTypes() {
+  const schema = getSchema(extensions as any);
+
+  let output = `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT.\n\n`;
+
+  /**
+   * Node attributes
+   */
   output += `export interface TiptapNodeAttributes {\n`;
-
-  // Nodes
-  for (const [name, nodeType] of Object.entries(schema.nodes)) {
-    const attrs = nodeType.spec.attrs;
-    console.log([
-      {
-        nodeType,
-        name,
-        attrs: JSON.stringify(attrs, null, 2),
-      },
-    ]);
-
-    if (!attrs || Object.keys(attrs).length === 0) {
-      output += `  '${name}': Record<string, never>;\n`;
-      continue;
-    }
-    output += `  '${name}': {\n`;
-    for (const [attrName, attrVal] of Object.entries(attrs)) {
-      const typeStr = getAttributeTypeFromDefault(attrVal.default);
-      output += `    '${attrName}'?: ${typeStr};\n`;
-    }
-    output += `  };\n`;
-  }
+  output += generateAttributes(schema.nodes);
   output += `}\n\n`;
 
-  // Marks
+  /**
+   * Mark attributes
+   */
   output += `export interface TiptapMarkAttributes {\n`;
-  for (const [name, markType] of Object.entries(schema.marks)) {
-    const attrs = markType.spec.attrs;
-    if (!attrs || Object.keys(attrs).length === 0) {
-      output += `  '${name}': Record<string, never>;\n`;
-      continue;
-    }
-    output += `  '${name}': {\n`;
-    for (const [attrName, attrVal] of Object.entries(attrs)) {
-      const typeStr = getAttributeTypeFromDefault(attrVal.default);
-      output += `    '${attrName}'?: ${typeStr};\n`;
-    }
-    output += `  };\n`;
-  }
+  output += generateAttributes(schema.marks);
   output += `}\n\n`;
+
+  /**
+   * Helper types
+   */
+  output += `export type TiptapNodeName = keyof TiptapNodeAttributes;\n`;
+  output += `export type TiptapMarkName = keyof TiptapMarkAttributes;\n\n`;
 
   output += `export type TiptapAllAttributes = TiptapNodeAttributes & TiptapMarkAttributes;\n`;
 
   const outPath = path.join(
     __dirname,
-    "../src/lib/richtext-renderer/core/generated-types.ts",
+    "../src/lib/richtext-renderer/core/tiptap-schema.generated.ts",
   );
+
   fs.writeFileSync(outPath, output, "utf-8");
-  console.log(`✅ Successfully generated Tiptap types at: ${outPath}`);
+
+  console.log("Generated Tiptap schema types:");
+  console.table({
+    nodes: Object.keys(schema.nodes).length,
+    marks: Object.keys(schema.marks).length,
+    output: outPath,
+  });
 }
 
-extractNodeAndMarkAttributes();
+generateTypes();

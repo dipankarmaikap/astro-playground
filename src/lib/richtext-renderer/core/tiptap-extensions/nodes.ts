@@ -32,7 +32,6 @@ export const StoryblokTextAlign = TextAlign.configure({
 
 export const StoryblokBlockquote = Blockquote;
 export const StoryblokParagraph = Paragraph;
-export const StoryblokHeading = Heading;
 export const StoryblokTableRow = TableRow;
 
 // Storyblok uses snake_case names for some extensions
@@ -47,6 +46,14 @@ export const StoryblokOrderedList = OrderedList.extend({
   name: "ordered_list",
   addOptions() {
     return { ...this.parent!(), itemTypeName: "list_item" };
+  },
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      order: {
+        default: 1,
+      },
+    };
   },
 });
 
@@ -63,6 +70,13 @@ export const StoryblokListItem = ListItem.extend({
 
 export const StoryblokCodeBlock = CodeBlock.extend({
   name: "code_block",
+  addAttributes() {
+    return {
+      class: {
+        default: null,
+      },
+    };
+  },
 });
 export const StoryblokHardBreak = HardBreak.extend({ name: "hard_break" });
 export const StoryblokHorizontalRule = HorizontalRule.extend({
@@ -75,16 +89,75 @@ export const StoryblokHorizontalRule = HorizontalRule.extend({
 export const StoryblokTable = Table;
 
 // Table cell with custom style handling
-export const StoryblokTableCell = TableCell;
+export const StoryblokTableCell = TableCell.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      colspan: {
+        default: 1,
+      },
+      rowspan: {
+        default: 1,
+      },
+      colwidth: {
+        default: null,
+        parseHTML: (element: HTMLElement) => {
+          const colwidth = element.getAttribute("colwidth");
+          return colwidth ? colwidth.split(",").map(Number) : null;
+        },
+      },
+      backgroundColor: {
+        default: null,
+      },
+    };
+  },
+});
 
 // Table header with custom style handling
 export const StoryblokTableHeader = TableHeader;
 
 // Image with optimizeImages support
-export const StoryblokImage = Image;
+export const StoryblokImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      src: {}, // Making src required
+      alt: {}, // Making alt required
+      id: {
+        default: null,
+      },
+      title: {
+        default: null,
+      },
+      source: {
+        default: null,
+      },
+      copyright: {
+        default: null,
+      },
+      meta_data: {
+        default: null,
+      },
+    };
+  },
+});
 
 // Emoji with custom renderHTML
 export const StoryblokEmoji = Emoji;
+
+export const StoryblokHeading = Heading.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      level: {
+        default: 1,
+      },
+      textAlign: {
+        default: null,
+      },
+    };
+  },
+});
 
 // Blok node (component placeholder for vanilla usage)
 // Configure `renderComponent` option to render blok components in framework SDKs.
