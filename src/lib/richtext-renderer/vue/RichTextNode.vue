@@ -10,6 +10,7 @@
 import { computed } from "vue";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { CoreRenderer } from "../core/renderer";
+import type { BlokBody } from "../core/types";
 import type { ComponentMap } from "./types";
 import MarkWrapper from "./MarkWrapper.vue";
 import RenderDOMSpec from "./RenderDOMSpec.vue";
@@ -20,6 +21,7 @@ const props = defineProps<{
   components: ComponentMap;
   index: number;
   isMarkWrapped?: boolean;
+  blokResolver?: (bloks: BlokBody[]) => any;
 }>();
 
 const domSpec = computed(() => props.renderer.getNodeDOMSpec(props.node));
@@ -29,10 +31,16 @@ const CustomNode = computed(
   () => props.components[props.node.type.name as keyof ComponentMap] as any,
 );
 
+// Props passed to custom node components, including parsedDOM
 const nodeProps = computed(() => ({
   node: props.node,
   attrs: props.node.attrs,
+  parsedDOM: domSpec.value,
 }));
+
+// Check if this is a blok node
+const isBlokNode = computed(() => props.node.type.name === "blok");
+const blokBody = computed(() => (props.node.attrs.body || []) as BlokBody[]);
 
 // Collect ProseMirror child nodes
 const childNodes = computed(() => {
@@ -51,11 +59,17 @@ const childNodes = computed(() => {
     :components="components"
     :marks="markDefs"
     :index="index"
+    :blok-resolver="blokResolver"
   />
 
   <template v-else>
     <!-- Plain text node -->
     <template v-if="node.isText">{{ node.text }}</template>
+
+    <!-- Blok node with resolver -->
+    <template v-else-if="isBlokNode && blokResolver">
+      <component :is="blokResolver(blokBody)" />
+    </template>
 
     <!-- Custom component for this node type -->
     <component
@@ -70,6 +84,7 @@ const childNodes = computed(() => {
         :renderer="renderer"
         :components="components"
         :index="child.index"
+        :blok-resolver="blokResolver"
       />
     </component>
 
@@ -85,6 +100,7 @@ const childNodes = computed(() => {
         :renderer="renderer"
         :components="components"
         :index="child.index"
+        :blok-resolver="blokResolver"
       />
     </RenderDOMSpec>
 
@@ -97,8 +113,8 @@ const childNodes = computed(() => {
         :renderer="renderer"
         :components="components"
         :index="child.index"
+        :blok-resolver="blokResolver"
       />
     </template>
   </template>
 </template>
-

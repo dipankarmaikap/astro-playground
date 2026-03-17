@@ -1,14 +1,26 @@
 ---
+/**
+ * RichTextNode.astro — renders a single ProseMirror node recursively.
+ *
+ * - Text nodes render as raw text.
+ * - Nodes with marks are wrapped via <MarkWrapper>.
+ * - Nodes with a CustomNode component use that component (with children as slot).
+ * - Blok nodes use blokComponents to render Storyblok components.
+ * - Fallback nodes use <RenderDOMSpec> which applies the Tiptap toDOM() spec.
+ */
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { CoreRenderer } from "../core/renderer";
-import type { ComponentMap } from "./types";
+import type { BlokBody } from "../core/types";
+import type { ComponentMap, BlokComponentMap } from "./types";
 import MarkWrapper from "./MarkWrapper.astro";
 import RenderDOMSpec from "./RenderDOMSpec.astro";
+import BlokRenderer from "./BlokRenderer.astro";
 
 export interface Props {
   node: PMNode;
   renderer: CoreRenderer;
   components: ComponentMap;
+  blokComponents?: BlokComponentMap;
   index: number;
   isMarkWrapped?: boolean;
 }
@@ -17,6 +29,7 @@ const {
   node,
   renderer,
   components,
+  blokComponents = {},
   index,
   isMarkWrapped = false,
 } = Astro.props;
@@ -28,14 +41,18 @@ const markDefs = renderer.getMarksForNode(node);
 // 2. Resolve the Custom Node Component
 const CustomNode = components[node.type.name as keyof typeof components] as any;
 
-// 3. Resolve attributes (Astro style `class` -> `class` instead of `className`)
+// 3. Check if this is a blok node
+const isBlokNode = node.type.name === "blok";
+const blokBody = isBlokNode ? (node.attrs.body || []) as BlokBody[] : [];
+
+// 4. Resolve attributes - now always include parsedDOM for custom components
 const nodeProps = CustomNode
-  ? { node, attrs: node.attrs } // Custom component props
+  ? { node, attrs: node.attrs, parsedDOM: domSpec }
   : domSpec
     ? { ...domSpec.attrs }
-    : {}; // Default HTML attributes
+    : {};
 
-// 4. Collect children
+// 5. Collect children
 const childrenNodes: PMNode[] = [];
 node.forEach((childNode) => {
   childrenNodes.push(childNode);
@@ -49,6 +66,7 @@ node.forEach((childNode) => {
       node={node}
       renderer={renderer}
       components={components}
+      blokComponents={blokComponents}
       marks={markDefs}
       index={index}
     />
@@ -56,6 +74,8 @@ node.forEach((childNode) => {
     <>
       {node.isText ? (
         <>{node.text}</>
+      ) : isBlokNode && Object.keys(blokComponents).length > 0 ? (
+        <BlokRenderer bloks={blokBody} blokComponents={blokComponents} />
       ) : CustomNode ? (
         <CustomNode {...nodeProps}>
           {childrenNodes.length > 0 && childrenNodes.map((childNode, childIndex) => (
@@ -63,6 +83,7 @@ node.forEach((childNode) => {
               node={childNode}
               renderer={renderer}
               components={components}
+              blokComponents={blokComponents}
               index={childIndex}
             />
           ))}
@@ -74,6 +95,7 @@ node.forEach((childNode) => {
               node={childNode}
               renderer={renderer}
               components={components}
+              blokComponents={blokComponents}
               index={childIndex}
             />
           ))}
@@ -84,6 +106,7 @@ node.forEach((childNode) => {
             node={childNode}
             renderer={renderer}
             components={components}
+            blokComponents={blokComponents}
             index={childIndex}
           />
         ))

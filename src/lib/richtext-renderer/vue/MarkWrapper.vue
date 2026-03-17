@@ -7,7 +7,7 @@
  */
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { CoreRenderer } from "../core/renderer";
-import type { MarkMapItem } from "../core/types";
+import type { MarkMapItem, BlokBody } from "../core/types";
 import type { ComponentMap } from "./types";
 import RenderDOMSpec from "./RenderDOMSpec.vue";
 import RichTextNode from "./RichTextNode.vue";
@@ -18,15 +18,19 @@ const props = defineProps<{
   components: ComponentMap;
   marks: MarkMapItem[];
   index: number;
+  blokResolver?: (bloks: BlokBody[]) => any;
 }>();
 
 const currentMark = props.marks[0];
 const remainingMarks = props.marks.slice(1);
 
 const CustomMark = props.components[currentMark.type as keyof ComponentMap] as any;
+
+// Props passed to custom mark components, including parsedDOM
 const markProps = {
   mark: currentMark.pmMark,
   attrs: currentMark.attrs,
+  parsedDOM: currentMark.spec,
 };
 </script>
 
@@ -45,6 +49,7 @@ const markProps = {
       :components="components"
       :marks="remainingMarks"
       :index="index"
+      :blok-resolver="blokResolver"
     />
     <!-- No more marks → render the node content -->
     <RichTextNode
@@ -54,6 +59,7 @@ const markProps = {
       :components="components"
       :index="index"
       :is-mark-wrapped="true"
+      :blok-resolver="blokResolver"
     />
   </component>
 
@@ -69,6 +75,7 @@ const markProps = {
       :components="components"
       :marks="remainingMarks"
       :index="index"
+      :blok-resolver="blokResolver"
     />
     <RichTextNode
       v-else
@@ -77,6 +84,7 @@ const markProps = {
       :components="components"
       :index="index"
       :is-mark-wrapped="true"
+      :blok-resolver="blokResolver"
     />
   </RenderDOMSpec>
 
@@ -89,6 +97,7 @@ const markProps = {
       :components="components"
       :marks="remainingMarks"
       :index="index"
+      :blok-resolver="blokResolver"
     />
     <RichTextNode
       v-else
@@ -97,6 +106,7 @@ const markProps = {
       :components="components"
       :index="index"
       :is-mark-wrapped="true"
+      :blok-resolver="blokResolver"
     />
   </template>
 </template>

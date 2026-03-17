@@ -34,7 +34,7 @@ const CustomLink = ({
   return (
     <a
       href={attrs.href || "#"}
-      target={attrs.target}
+      target={attrs.target ?? undefined}
       className="text-blue-500 underline decoration-wavy"
     >
       {children}
@@ -51,6 +51,11 @@ export default function ReactDemo() {
           heading: CustomHeading,
           bold: CustomBold,
           link: CustomLink,
+        }}
+        blokResolver={(props)=> {
+console.log({props});
+
+          return <p>This is blok resolver</p>
         }}
       />
     </div>
