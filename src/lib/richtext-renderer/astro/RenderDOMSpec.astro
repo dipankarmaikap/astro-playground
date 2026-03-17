@@ -1,12 +1,16 @@
 ---
 import type { ParsedDOMSpec } from "../core/types";
 import { VOID_ELEMENTS } from "../core/renderer";
+import { normalizeDOMAttrs } from "../core/attrs";
 
 export interface Props {
   spec: ParsedDOMSpec;
 }
 
 const { spec } = Astro.props;
+
+// Normalize attributes using shared utility (important for style unification!)
+const normalizedAttrs = normalizeDOMAttrs(spec.attrs);
 
 // Is it a void element?
 const isVoid = VOID_ELEMENTS.has(spec.tag.toLowerCase());
@@ -17,9 +21,9 @@ const Tag = spec.tag as any;
 
 {
   isVoid ? (
-    <Tag {...spec.attrs} />
+    <Tag {...normalizedAttrs} />
   ) : (
-    <Tag {...spec.attrs}>
+    <Tag {...normalizedAttrs}>
       {spec.children.map((child) => {
         if (typeof child === "string") return child;
         if (typeof child === "object" && "hole" in child && child.hole) {

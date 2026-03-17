@@ -7,14 +7,18 @@
  */
 import type { ParsedDOMSpec } from "../core/types";
 import { VOID_ELEMENTS } from "../core/renderer";
+import { normalizeDOMAttrs } from '../core/attrs';
 
 const props = defineProps<{ spec: ParsedDOMSpec }>();
+
+// Normalize attributes so "color" etc. become <style> inline
+const normalizedAttrs = normalizeDOMAttrs(props.spec.attrs);
 
 const isVoid = VOID_ELEMENTS.has(props.spec.tag.toLowerCase());
 </script>
 
 <template>
-  <component :is="spec.tag" v-bind="spec.attrs">
+  <component :is="spec.tag" v-bind="normalizedAttrs">
     <template v-if="!isVoid">
       <template v-for="(child, i) in spec.children" :key="i">
         <!-- Hole: inject slotted content from parent (the actual ProseMirror children) -->

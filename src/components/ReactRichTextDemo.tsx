@@ -53,8 +53,6 @@ export default function ReactDemo() {
           link: CustomLink,
         }}
         blokResolver={(props)=> {
-console.log({props});
-
           return <p>This is blok resolver</p>
         }}
       />
