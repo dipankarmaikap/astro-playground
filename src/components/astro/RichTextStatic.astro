@@ -1,0 +1,35 @@
+---
+import { isSelfClosing, type RenderSpec } from '@storyblok/richtext/static';
+
+interface Props {
+  staticChildren?: readonly RenderSpec[];
+  attrs?: Record<string, any>;
+}
+const { staticChildren, attrs } = Astro.props;
+---
+
+{
+  staticChildren?.map((spec) => {
+    const Tag = spec.tag;
+    const selfClosing = isSelfClosing(Tag);
+    const mergedAttrs = {
+      ...spec.attrs,
+      ...attrs,
+    };
+    if (selfClosing) {
+      return <Tag {...mergedAttrs} />;
+    }
+
+    return (
+      <Tag {...mergedAttrs}>
+        {spec.children ? (
+          <Astro.self staticChildren={spec.children}>
+            <slot />
+          </Astro.self>
+        ) : (
+          <slot />
+        )}
+      </Tag>
+    );
+  })
+}

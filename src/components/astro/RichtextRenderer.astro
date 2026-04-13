@@ -1,0 +1,20 @@
+---
+import type { PMNode, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import RichTextNode from './RichTextNode.astro';
+interface Props {
+  document: PMNode;
+  components?: StoryblokRichTextComponentMap;
+}
+
+const { document, components } = Astro.props;
+
+const nodes = document?.type === 'doc' ? document.content : document ? [document] : [];
+---
+
+{
+  nodes?.length ? (
+    nodes.map((node) => <RichTextNode node={node} components={components} />)
+  ) : (
+    <p>Not a valid Richtext Data</p>
+  )
+}

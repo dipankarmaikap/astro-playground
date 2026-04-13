@@ -1,0 +1,10 @@
+---
+import type { RichTextComponentProps } from '@storyblok/richtext/static';
+
+type Props = RichTextComponentProps<'link'>;
+const { attrs } = Astro.props;
+---
+
+<span data-test={JSON.stringify(attrs)}>
+  <slot />
+</span>

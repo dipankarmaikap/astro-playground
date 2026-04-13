@@ -1,0 +1,53 @@
+---
+import type { PMNode, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import {
+  isSelfClosing,
+  resolveComponent,
+  resolveTag,
+  getStaticChildren,
+  processAttrs,
+  styleToString,
+} from '@storyblok/richtext/static';
+import RichTextText from './RichTextText.astro';
+import RichTextStatic from './RichTextStatic.astro';
+
+interface Props {
+  node: PMNode;
+  components?: StoryblokRichTextComponentMap;
+}
+
+const { node, components = {} } = Astro.props;
+
+const NodeComponent = node.type !== 'text' && (resolveComponent(node.type, components) as any);
+const Tag = resolveTag(node) as keyof HTMLElementTagNameMap;
+const selfClosing = isSelfClosing(Tag);
+const staticChildren = getStaticChildren(node);
+const attrs = node.type !== 'text' ? processAttrs(node.type, node.attrs) : {};
+const styleString = attrs.style && styleToString(attrs.style);
+const htmlAttrs = {
+  ...attrs,
+  ...(styleString && { style: styleString }),
+};
+---
+
+{
+  node.type === 'text' ? (
+    <RichTextText node={node} components={components} />
+  ) : NodeComponent ? (
+    <NodeComponent {...node} components={components} />
+  ) : selfClosing ? (
+    <Tag {...htmlAttrs} />
+  ) : (
+    <Tag {...(!staticChildren && htmlAttrs)}>
+      {staticChildren ? (
+        <RichTextStatic attrs={htmlAttrs} staticChildren={staticChildren}>
+          {node.content?.map((childNode) => (
+            <Astro.self node={childNode} components={components} />
+          ))}
+        </RichTextStatic>
+      ) : (
+        node.content?.map((childNode) => <Astro.self node={childNode} components={components} />)
+      )}
+    </Tag>
+  )
+}

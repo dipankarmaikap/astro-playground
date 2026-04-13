@@ -1,0 +1,28 @@
+---
+import type { PMMark, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import { resolveComponent, resolveTag, processAttrs } from '@storyblok/richtext/static';
+
+interface Props {
+  mark: PMMark;
+  components?: StoryblokRichTextComponentMap;
+}
+
+const { mark, components } = Astro.props;
+
+const MarkComponent = resolveComponent(mark.type, components) as any;
+const Tag = !MarkComponent ? resolveTag(mark) : 'span';
+
+const attrs = processAttrs(mark.type, mark.attrs);
+---
+
+{
+  MarkComponent ? (
+    <MarkComponent {...mark} components={components}>
+      <slot />
+    </MarkComponent>
+  ) : (
+    <Tag {...attrs}>
+      <slot />
+    </Tag>
+  )
+}

@@ -1,0 +1,8 @@
+---
+import type { RichTextComponentProps } from '@storyblok/richtext/static';
+
+type Props = RichTextComponentProps<'image'>;
+const { attrs } = Astro.props;
+---
+
+<img src={attrs?.src} alt={attrs?.alt} width="200" />
