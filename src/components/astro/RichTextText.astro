@@ -1,0 +1,28 @@
+---
+import type { PMNode, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import RichTextMark from './RichTextMark.astro';
+
+interface Props {
+  node: PMNode;
+  components?: StoryblokRichTextComponentMap;
+}
+
+const { node, components } = Astro.props;
+
+if (node.type !== 'text') {
+  return null;
+}
+
+const marks = node.marks ?? [];
+---
+
+{
+  marks.reduce(
+    (acc, mark) => (
+      <RichTextMark mark={mark} components={components}>
+        {acc}
+      </RichTextMark>
+    ),
+    <Fragment>{node.text}</Fragment>,
+  )
+}

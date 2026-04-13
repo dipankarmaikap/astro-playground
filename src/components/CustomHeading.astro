@@ -1,5 +1,11 @@
 ---
-console.log(Astro.props);
+import type { RichTextComponentProps } from '@storyblok/richtext/static';
+import RichtextRenderer from './astro/RichtextRenderer.astro';
+
+type Props = RichTextComponentProps<'heading'>;
+const { attrs, content, components } = Astro.props;
 ---
 
-<p>This is custom heading</p>
+<div data-test={JSON.stringify(attrs)}>
+  {content?.map((document) => <RichtextRenderer document={document} components={components} />)}
+</div>

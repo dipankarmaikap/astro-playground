@@ -1,0 +1,25 @@
+---
+import type { RichTextComponentProps } from '@storyblok/richtext/static';
+
+type Props = RichTextComponentProps<'blok'>;
+const { attrs } = Astro.props;
+---
+
+<pre>{JSON.stringify(attrs,null,2)}</pre>
+
+<style>
+  pre {
+    width: 400px;
+    max-width: 100%;
+    max-height: 200px;
+    overflow: auto;
+    padding: 12px;
+    border-radius: 6px;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 12px;
+    line-height: 1.4;
+    border: 1px solid #1e293b;
+    display: inline-block;
+  }
+</style>

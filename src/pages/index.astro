@@ -1,7 +1,39 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import RichtextRenderer from '../components/astro/RichtextRenderer.astro';
+import CustomBlok from '../components/CustomBlok.astro';
+import CustomHeading from '../components/CustomHeading.astro';
+import CustomImage from '../components/CustomImage.astro';
+import CustomLink from '../components/CustomLink.astro';
+import CustomText from '../components/CustomText.astro';
+import ReactRichTextRender from '../components/ReactRichTextRender';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const respose = await fetch(
+  'https://api.storyblok.com/v2/cdn/stories/richtext?version=draft&token=OurklwV5XsDJTIE1NJaD2wtt&cv=1776015251',
+);
+
+const data = await respose.json();
+const richtext = data.story.content.richText;
 ---
 
 <BaseLayout>
-  <h1>Astro</h1>
+  <div class="flex">
+    <div>
+      <RichtextRenderer
+        document={richtext}
+        components={{
+          link: CustomLink,
+          blok: CustomBlok,
+          heading: CustomHeading,
+        }}
+      />
+    </div>
+    <ReactRichTextRender document={richtext} client:load />
+  </div>
 </BaseLayout>
+
+<style is:global>
+  img {
+    max-width: 300px;
+  }
+</style>
