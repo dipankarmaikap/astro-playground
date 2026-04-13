@@ -18,8 +18,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(@types/node@25.5.0)(astro@6.0.4(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.59.0)(typescript@5.9.3))(jiti@2.6.1)(lightningcss@1.31.1)(vue@3.5.30(typescript@5.9.3))
       '@storyblok/richtext':
-        specifier: https://pkg.pr.new/@storyblok/richtext@3397e84
-        version: https://pkg.pr.new/@storyblok/richtext@3397e84
+        specifier: https://pkg.pr.new/@storyblok/richtext@161ba7e
+        version: https://pkg.pr.new/@storyblok/richtext@161ba7e
       '@types/react':
         specifier: ^19.2.14
         version: 19.2.14
@@ -781,8 +781,8 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
-  '@storyblok/richtext@https://pkg.pr.new/@storyblok/richtext@3397e84':
-    resolution: {integrity: sha512-PtKbLRdF7QUS/fOMCAlKhql2hhDhWJDOjced84LbAtsh2l97c19hKeJXzOo8tXrs7CGR8Rt9Cfmai/1hSWXVng==, tarball: https://pkg.pr.new/@storyblok/richtext@3397e84}
+  '@storyblok/richtext@https://pkg.pr.new/@storyblok/richtext@161ba7e':
+    resolution: {integrity: sha512-R+ygC85f1SVueF7scz5ZBTJ/LeUq2EksoO4trXh1tPwwUm5wwmoYQbSCdEkQpC5h16iQ5A3xx1OeLXj9HAasPg==, tarball: https://pkg.pr.new/@storyblok/richtext@161ba7e}
     version: 4.1.2
 
   '@sveltejs/acorn-typescript@1.0.9':
@@ -2157,8 +2157,8 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  storyblok-js-client@https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@3397e84:
-    resolution: {integrity: sha512-NSa3NX+v84sxAesktD5aruzWC8i4PUCkWIAETkn+JE9GLqCMFLEXezVDPK9qUaZPOPDCPV97OIMbP/MsrB30Gg==, tarball: https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@3397e84}
+  storyblok-js-client@https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@161ba7e:
+    resolution: {integrity: sha512-+lEvdlcrZTnu2z172176b2xDkUA4l7VE4XPY6uJulthREohxGlMOSE067b5lOQ5/WC3uoYxSx4z4j4swjesSwg==, tarball: https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@161ba7e}
     version: 7.3.0
 
   stringify-entities@4.0.4:
@@ -3163,7 +3163,7 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@storyblok/richtext@https://pkg.pr.new/@storyblok/richtext@3397e84':
+  '@storyblok/richtext@https://pkg.pr.new/@storyblok/richtext@161ba7e':
     dependencies:
       '@tiptap/core': 3.20.2(@tiptap/pm@3.20.2)
       '@tiptap/extension-blockquote': 3.20.2(@tiptap/core@3.20.2(@tiptap/pm@3.20.2))
@@ -3196,7 +3196,7 @@ snapshots:
       emojibase: 17.0.0
       happy-dom: 20.8.9
       markdown-it: 14.1.1
-      storyblok-js-client: https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@3397e84
+      storyblok-js-client: https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@161ba7e
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -4995,7 +4995,7 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  storyblok-js-client@https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@3397e84: {}
+  storyblok-js-client@https://pkg.pr.new/storyblok/monoblok/storyblok-js-client@161ba7e: {}
 
   stringify-entities@4.0.4:
     dependencies:

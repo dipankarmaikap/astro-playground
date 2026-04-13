@@ -15,7 +15,7 @@
     "@astrojs/react": "^5.0.0",
     "@astrojs/svelte": "^8.0.0",
     "@astrojs/vue": "^6.0.0",
-    "@storyblok/richtext": "https://pkg.pr.new/@storyblok/richtext@3397e84",
+    "@storyblok/richtext": "https://pkg.pr.new/@storyblok/richtext@161ba7e",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.0.4",
