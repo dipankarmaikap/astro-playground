@@ -1,10 +1,10 @@
 import { processAttrs, resolveComponent, resolveTag, type PMMark } from "@storyblok/richtext/static";
 import type { ElementType, ReactNode } from "react";
-import type { ReactComponentMap } from "../../utils";
+import type { SBReactComponentMap } from "../../utils";
 
 interface Props {
     mark: PMMark;
-    components?: ReactComponentMap;
+    components?: SBReactComponentMap;
     children?: ReactNode
 
 }
