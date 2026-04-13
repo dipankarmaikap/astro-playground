@@ -1,5 +1,4 @@
-import { type RichTextComponentProps, type StoryblokRichTextComponentMap, type TiptapComponentName } from "@storyblok/richtext/static"
-
+import type { RichTextComponentProps, StoryblokRichTextComponentMap, TiptapComponentName } from "@storyblok/richtext/static"
 import type { ReactNode } from "react";
 
 export type SBReactRichTextComponentProps<
