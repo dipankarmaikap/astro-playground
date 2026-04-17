@@ -1,31 +1,37 @@
 import { isSelfClosing, stringToStyle, type RenderSpec } from '@storyblok/richtext/static';
-import type { ElementType, ReactNode } from 'react';
+import { createElement, type ReactNode } from 'react';
 
 interface Props {
   staticChildren?: readonly RenderSpec[];
-  attrs?: Record<string, any>;
-  children?: ReactNode
+  attrs?: Record<string, unknown>;
+  children?: ReactNode;
 }
-export default function RichTextStatic({ staticChildren, attrs, children }:Props) {
-  return staticChildren?.map((spec,i) =>{
-    const Tag = spec.tag as ElementType;
-    const selfClosing = isSelfClosing(Tag as string);
+
+export default function RichTextStatic({ staticChildren, attrs, children }: Props): ReactNode {
+  return staticChildren?.map((spec, i) => {
+    // Type-safe tag resolution
+    const tag = spec.tag
+    if (!tag) {
+      return null;
+    }
+    const selfClosing = isSelfClosing(tag);
     const mergedAttrs = {
-      ...spec.attrs, ...attrs,style:stringToStyle(spec?.attrs?.style??"",)
-    }
+      ...spec.attrs,
+      ...attrs,
+      style: stringToStyle(spec?.attrs?.style ?? ""),
+      key: i,
+    };
+    
     if (selfClosing) {
-      return <Tag {...mergedAttrs} key={i} />;
+      return createElement(tag, mergedAttrs);
     }
-    return (
-      <Tag key={i} {...mergedAttrs}>
-        {spec.children ? (
-          <RichTextStatic staticChildren={spec.children}>
-            {children}
-          </RichTextStatic>
-        ) : 
-          children
-        }
-      </Tag>
-    );
-  })
+    
+    const childContent = spec.children ? (
+      <RichTextStatic staticChildren={spec.children}>
+        {children}
+      </RichTextStatic>
+    ) : children;
+    
+    return createElement(tag, mergedAttrs, childContent);
+  });
 }

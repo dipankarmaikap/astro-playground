@@ -1,34 +1,41 @@
 ---
+import type { StoryblokRichTextJson } from '@storyblok/richtext/static';
 import RichtextRenderer from '../components/astro/RichtextRenderer.astro';
 import CustomBlok from '../components/CustomBlok.astro';
 import CustomHeading from '../components/CustomHeading.astro';
-import CustomImage from '../components/CustomImage.astro';
 import CustomLink from '../components/CustomLink.astro';
-import CustomText from '../components/CustomText.astro';
 import ReactRichTextRender from '../components/ReactRichTextRender';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const respose = await fetch(
+const response = await fetch(
   'https://api.storyblok.com/v2/cdn/stories/richtext?version=draft&token=OurklwV5XsDJTIE1NJaD2wtt&cv=1776015251',
 );
 
-const data = await respose.json();
-const richtext = data.story.content.richText;
+const data = await response.json();
+
+// Type-safe extraction with validation
+const richtext = data?.story?.content?.richText as StoryblokRichTextJson | undefined;
 ---
 
 <BaseLayout>
   <div class="flex">
     <div>
-      <RichtextRenderer
-        document={richtext}
-        components={{
-          link: CustomLink,
-          blok: CustomBlok,
-          heading: CustomHeading,
-        }}
-      />
+      {
+        richtext ? (
+          <RichtextRenderer
+            document={richtext}
+            components={{
+              link: CustomLink,
+              blok: CustomBlok,
+              heading: CustomHeading,
+            }}
+          />
+        ) : (
+          <p>Failed to load richtext content</p>
+        )
+      }
     </div>
-    <ReactRichTextRender document={richtext} client:load />
+    {richtext && <ReactRichTextRender document={richtext} client:load />}
   </div>
 </BaseLayout>
 

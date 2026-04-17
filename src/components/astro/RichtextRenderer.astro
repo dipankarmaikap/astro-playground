@@ -1,14 +1,15 @@
 ---
-import type { PMNode, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import type { StoryblokRichTextJson } from '@storyblok/richtext/static';
 import RichTextNode from './RichTextNode.astro';
-interface Props {
-  document: PMNode;
-  components?: StoryblokRichTextComponentMap;
+import { type SBAstroComponentMap } from './utils';
+export interface Props {
+  document: StoryblokRichTextJson;
+  components?: SBAstroComponentMap;
 }
 
 const { document, components } = Astro.props;
 
-const nodes = document?.type === 'doc' ? document.content : document ? [document] : [];
+const nodes = document.type === 'doc' ? (document.content ?? []) : [document];
 ---
 
 {

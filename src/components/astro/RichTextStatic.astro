@@ -1,16 +1,17 @@
 ---
 import { isSelfClosing, type RenderSpec } from '@storyblok/richtext/static';
+import type { HTMLTag } from 'astro/types';
 
 interface Props {
   staticChildren?: readonly RenderSpec[];
-  attrs?: Record<string, any>;
+  attrs?: Record<string, unknown>;
 }
 const { staticChildren, attrs } = Astro.props;
 ---
 
 {
   staticChildren?.map((spec) => {
-    const Tag = spec.tag;
+    const Tag = spec.tag as HTMLTag;
     const selfClosing = isSelfClosing(Tag);
     const mergedAttrs = {
       ...spec.attrs,

@@ -1,5 +1,5 @@
 ---
-import type { PMNode, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import type { PMNode } from '@storyblok/richtext/static';
 import {
   isSelfClosing,
   resolveComponent,
@@ -10,17 +10,22 @@ import {
 } from '@storyblok/richtext/static';
 import RichTextText from './RichTextText.astro';
 import RichTextStatic from './RichTextStatic.astro';
+import { type SBAstroComponentMap, isValidAstroComponent } from './utils';
 
 interface Props {
   node: PMNode;
-  components?: StoryblokRichTextComponentMap;
+  components?: SBAstroComponentMap;
 }
 
 const { node, components = {} } = Astro.props;
 
-const NodeComponent = node.type !== 'text' && (resolveComponent(node.type, components) as any);
-const Tag = resolveTag(node) as keyof HTMLElementTagNameMap;
-const selfClosing = isSelfClosing(Tag);
+// Type-safe component resolution with proper type guard
+const resolvedComponent = node.type !== 'text' ? resolveComponent(node.type, components) : null;
+const NodeComponent = isValidAstroComponent(resolvedComponent) ? resolvedComponent : null;
+
+// Type-safe tag resolution with proper type guard
+const Tag = resolveTag(node);
+const selfClosing = Tag ? isSelfClosing(Tag) : false;
 const staticChildren = getStaticChildren(node);
 const attrs = node.type !== 'text' ? processAttrs(node.type, node.attrs) : {};
 const styleString = attrs.style && styleToString(attrs.style);
@@ -35,19 +40,21 @@ const htmlAttrs = {
     <RichTextText node={node} components={components} />
   ) : NodeComponent ? (
     <NodeComponent {...node} components={components} />
-  ) : selfClosing ? (
-    <Tag {...htmlAttrs} />
-  ) : (
-    <Tag {...(!staticChildren && htmlAttrs)}>
-      {staticChildren ? (
-        <RichTextStatic attrs={htmlAttrs} staticChildren={staticChildren}>
-          {node.content?.map((childNode) => (
-            <Astro.self node={childNode} components={components} />
-          ))}
-        </RichTextStatic>
-      ) : (
-        node.content?.map((childNode) => <Astro.self node={childNode} components={components} />)
-      )}
-    </Tag>
-  )
+  ) : Tag ? (
+    selfClosing ? (
+      <Tag {...htmlAttrs} />
+    ) : (
+      <Tag {...(staticChildren ? {} : htmlAttrs)}>
+        {staticChildren ? (
+          <RichTextStatic attrs={htmlAttrs} staticChildren={staticChildren}>
+            {node.content?.map((childNode) => (
+              <Astro.self node={childNode} components={components} />
+            ))}
+          </RichTextStatic>
+        ) : (
+          node.content?.map((childNode) => <Astro.self node={childNode} components={components} />)
+        )}
+      </Tag>
+    )
+  ) : null
 }

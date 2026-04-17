@@ -1,16 +1,21 @@
 ---
-import type { PMMark, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import type { PMMark } from '@storyblok/richtext/static';
 import { resolveComponent, resolveTag, processAttrs } from '@storyblok/richtext/static';
+import { type SBAstroComponentMap, type AstroComponent, isValidAstroComponent } from './utils';
 
 interface Props {
   mark: PMMark;
-  components?: StoryblokRichTextComponentMap;
+  components?: SBAstroComponentMap;
 }
 
 const { mark, components } = Astro.props;
 
-const MarkComponent = resolveComponent(mark.type, components) as any;
-const Tag = !MarkComponent ? resolveTag(mark) : 'span';
+// Type-safe component resolution with proper type guard
+const resolvedComponent = resolveComponent(mark.type, components);
+const MarkComponent: AstroComponent | null = isValidAstroComponent(resolvedComponent) ? resolvedComponent : null;
+
+// Type-safe tag resolution with proper type guard
+const Tag = resolveTag(mark);
 
 const attrs = processAttrs(mark.type, mark.attrs);
 ---
@@ -21,8 +26,10 @@ const attrs = processAttrs(mark.type, mark.attrs);
       <slot />
     </MarkComponent>
   ) : (
-    <Tag {...attrs}>
-      <slot />
-    </Tag>
+    Tag && (
+      <Tag {...attrs}>
+        <slot />
+      </Tag>
+    )
   )
 }

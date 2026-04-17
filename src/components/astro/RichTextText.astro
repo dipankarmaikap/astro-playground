@@ -1,10 +1,11 @@
 ---
-import type { PMNode, StoryblokRichTextComponentMap } from '@storyblok/richtext/static';
+import type { PMNode } from '@storyblok/richtext/static';
 import RichTextMark from './RichTextMark.astro';
+import type { SBAstroComponentMap } from './utils';
 
 interface Props {
   node: PMNode;
-  components?: StoryblokRichTextComponentMap;
+  components?: SBAstroComponentMap;
 }
 
 const { node, components } = Astro.props;
